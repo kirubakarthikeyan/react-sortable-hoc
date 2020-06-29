@@ -810,10 +810,8 @@ export default function sortableContainer(
             }
           }
         }
-        console.log(translate);
         nodesTransitionStyle[i] = setTranslate3d(translate);
       }
-      console.log(nodesTransitionStyle);
       for (let i = 0, len = nodes.length; i < len; i++) {
         const {transitionDuration} = this.props;
         if (transitionDuration) {

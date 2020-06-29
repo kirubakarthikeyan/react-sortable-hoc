@@ -1869,11 +1869,8 @@ function sortableContainer(WrappedComponent) {
                 }
               }
 
-              console.log(translate);
               nodesTransitionStyle[i] = setTranslate3d(translate);
             }
-
-            console.log(nodesTransitionStyle);
 
             for (var _i = 0, _len = nodes.length; _i < _len; _i++) {
               var transitionDuration = this.props.transitionDuration;
