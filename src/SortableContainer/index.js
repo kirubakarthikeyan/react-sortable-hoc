@@ -520,10 +520,10 @@ export default function sortableContainer(
         // Clear the cached offset/boundingClientRect
         node.edgeOffset = null;
         node.boundingClientRect = null;
-
-        // Remove the transforms / transitions
-        setTranslate3d(el, null);
-        setTransitionDuration(el, null);
+        setInlineStyles(el, {
+          ...setTranslate3d(null),
+          ...setTransitionDuration(null),
+        });
         node.translate = null;
       }
 
@@ -616,14 +616,17 @@ export default function sortableContainer(
         keyboardSortingTransitionDuration &&
         !ignoreTransition
       ) {
-        setTransitionDuration(this.helper, keyboardSortingTransitionDuration);
+        setInlineStyles(
+          this.helper,
+          setTransitionDuration(keyboardSortingTransitionDuration),
+        );
       }
 
-      setTranslate3d(this.helper, translate);
+      setInlineStyles(this.helper, setTranslate3d(translate));
     }
 
     animateNodes() {
-      const {transitionDuration, hideSortableGhost, onSortOver} = this.props;
+      const {hideSortableGhost, onSortOver} = this.props;
       const {containerScrollDelta, windowScrollDelta} = this;
       const nodes = this.manager.getOrderedRefs();
       const sortingOffset = {
@@ -636,6 +639,7 @@ export default function sortableContainer(
       const prevIndex = this.newIndex;
       this.newIndex = null;
 
+      const nodesTransitionStyle = {};
       for (let i = 0, len = nodes.length; i < len; i++) {
         const {node} = nodes[i];
         const {index} = node.sortableInfo;
@@ -703,10 +707,6 @@ export default function sortableContainer(
             });
           }
           continue;
-        }
-
-        if (transitionDuration) {
-          setTransitionDuration(node, transitionDuration);
         }
 
         if (this.axis.x) {
@@ -810,9 +810,20 @@ export default function sortableContainer(
             }
           }
         }
+        console.log(translate);
+        nodesTransitionStyle[i] = setTranslate3d(translate);
+      }
+      console.log(nodesTransitionStyle);
+      for (let i = 0, len = nodes.length; i < len; i++) {
+        const {transitionDuration} = this.props;
+        if (transitionDuration) {
+          nodesTransitionStyle[i] = {
+            ...nodesTransitionStyle[i],
+            ...setTransitionDuration(transitionDuration),
+          };
+        }
 
-        setTranslate3d(node, translate);
-        nodes[i].translate = translate;
+        setInlineStyles(nodes[i].node, nodesTransitionStyle[i]);
       }
 
       if (this.newIndex == null) {
@@ -869,7 +880,7 @@ export default function sortableContainer(
         }
 
         this.translate = translate;
-        setTranslate3d(this.helper, this.translate);
+        setInlineStyles(this.helper, setTranslate3d(this.translate));
         this.scrollContainer.scrollLeft += scrollX;
         this.scrollContainer.scrollTop += scrollY;
 
